@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="description" content="CryptoJs">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> CryptoJs AES </title>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style>
+    .container {
+        margin-top: 20px;
+    }
+    </style>
+</head>
+
+<body ng-app="demoApp">
+    <div class="container">
+        <h1>CryptoJs AES Encryptor / Decryptor</h1>
+        <h2>The Cipher Algorithms</h2>
+        <p>Reference:<a href="https://code.google.com/p/crypto-js/">google crypto-js</a></p>
+        <div ng-controller="mainCtrl as vm">
+            <div class="form-group has-warning">
+                <label class="control-label">Text to encrypt/decrypt</label>
+                <textarea class="form-control" id="intext" data-ng-model="model.intext"></textarea>
+            </div>
+            <div class="form-group has-warning">
+                <label class="control-label">Passphrase</label>
+                <input type="text" class="form-control" id="passphrase" data-ng-model="model.pwd"></input>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Encrypted text</label>
+                <textarea class="form-control" id="encryptedText" data-ng-model="model.encTxt"></textarea>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Decrypted text</label>
+                <textarea class="form-control" id="decryptedText" ng-model="model.decText"></textarea>
+            </div>
+            <div >
+                <button type="button" id="btnAES" class="btn btn-primary" data-ng-click="aes()">Encrypt/Decrypt</button>
+                <button type="button" id="btnClear" class="btn btn-warning" data-ng-click="clear()">Clear</button>
+            </div>
+        </div>
+        <hr>
+    </div>
+</body>
+<script type="text/javascript">
+angular.module("demoApp", [])
+    .controller('mainCtrl', ['$scope', function($scope) {
+        var viewModel = function() {
+            var self = this;
+            self.intext = "";
+            self.pwd = "";
+            self.encTxt = null;
+            self.decText = null;
+        };
+
+        $scope.model = new viewModel();
+
+        $scope.aes = function() {
+            var encrypted = CryptoJS.AES.encrypt($scope.model.intext, $scope.model.pwd);
+            var decrypted = CryptoJS.AES.decrypt(encrypted, $scope.model.pwd);
+            $scope.model.encTxt = encrypted;
+            $scope.model.decText = decrypted.toString(CryptoJS.enc.Utf8);
+        };
+
+        $scope.clear = function() {
+            $scope.model.intext = "";
+            $scope.model.pwd = "";
+            $scope.model.encTxt = "";
+            $scope.model.decText = "";
+        };
+    }]);
+</script>
+
+</html>
