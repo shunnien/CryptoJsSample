@@ -8,11 +8,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title> CryptoJs AES </title>
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/components/core-min.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha256.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha512.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha3.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/ripemd160.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-md5.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha1.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha256.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/pbkdf2.js"></script>
     <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/tripledes.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/rabbit.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/rc4.js"></script>
+    <script type="text/javascript" src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <style>
     .container {
         margin-top: 20px;
+    }
+    
+    textarea {
+        min-height: 100px;
     }
     </style>
 </head>
@@ -21,15 +41,29 @@
     <div class="container">
         <h1>CryptoJs AES Encryptor / Decryptor</h1>
         <h2>The Cipher Algorithms</h2>
-        <p>Reference:<a href="https://code.google.com/p/crypto-js/">google crypto-js</a></p>
-        <div ng-controller="mainCtrl as vm">
+        <p>Reference:<a href="https://code.google.com/p/crypto-js/" target="_blank">google crypto-js</a></p>
+        <div ng-controller="mainCtrl">
+            <nav class="navbar navbar-inverse">
+                <ul class="nav navbar-nav">
+                    <li class="navbar-form">
+                        <div class="form-group">
+                            <label for="itemSel" class="text-muted">Algorithms</label>
+                            <select ng-model="selItem" class="form-control" data-ng-options="algorithm as algorithm.text group by algorithm.type for algorithm in ::vm.options">
+                                <option value="">-- Please select option --</option>
+                            </select>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
             <div class="form-group has-warning">
                 <label class="control-label">Text to encrypt/decrypt</label>
-                <textarea class="form-control" id="intext" data-ng-model="model.intext"></textarea>
+                <textarea class="form-control" id="intext" data-ng-model="model.intext" placeholder="type here"></textarea>
             </div>
             <div class="form-group has-warning">
-                <label class="control-label">Passphrase</label>
+                <label class="control-label">Passphrase(key)</label>
                 <input type="text" class="form-control" id="passphrase" data-ng-model="model.pwd"></input>
+                <label class="control-label">Initialization Vector(IV)</label>
+                <input type="text" class="form-control" data-ng-model="model.iv"></input>
             </div>
             <div class="form-group has-success">
                 <label class="control-label">Encrypted text</label>
@@ -39,7 +73,7 @@
                 <label class="control-label">Decrypted text</label>
                 <textarea class="form-control" id="decryptedText" ng-model="model.decText"></textarea>
             </div>
-            <div >
+            <div>
                 <button type="button" id="btnAES" class="btn btn-primary" data-ng-click="aes()">Encrypt/Decrypt</button>
                 <button type="button" id="btnClear" class="btn btn-warning" data-ng-click="clear()">Clear</button>
             </div>
@@ -50,10 +84,86 @@
 <script type="text/javascript">
 angular.module("demoApp", [])
     .controller('mainCtrl', ['$scope', function($scope) {
+        var itemViewModel = function() {
+            var self = this;
+            self.options = [{
+                type: "Ciphers",
+                text: "AES",
+                value: "AES"
+            }, {
+                type: "Ciphers",
+                text: "DES",
+                value: "DES"
+            }, {
+                type: "Ciphers",
+                text: "Triple DES",
+                value: "TripleDES"
+            }, {
+                type: "Ciphers",
+                text: "Rabbit",
+                value: "Rabbit"
+            }, {
+                type: "Ciphers",
+                text: "RC4",
+                value: "RC4"
+            }, {
+                type: "Ciphers",
+                text: "RC4Drop",
+                value: "RC4Drop"
+            }, {
+                type: "Hashers",
+                text: "MD5",
+                value: "MD5"
+            }, {
+                type: "Hashers",
+                text: "SHA-1",
+                value: "SHA1"
+            }, {
+                type: "Hashers",
+                text: "SHA-2(256)",
+                value: "SHA256"
+            }, {
+                type: "Hashers",
+                text: "SHA-2(512)",
+                value: "SHA512"
+            }, {
+                type: "Hashers",
+                text: "SHA-3",
+                value: "SHA3"
+            }, {
+                type: "Hashers",
+                text: "RIPEMD-160",
+                value: "RIPEMD160"
+            }, {
+                type: "HMAC",
+                text: "HMAC-MD5",
+                value: "HmacMD5"
+            }, {
+                type: "HMAC",
+                text: "HMAC-SHA1",
+                value: "HmacSHA1"
+            }, {
+                type: "HMAC",
+                text: "HMAC-SHA256",
+                value: "HmacSHA256"
+            }, {
+                type: "HMAC",
+                text: "HMAC-SHA512",
+                value: "HmacSHA512"
+            }, {
+                type: "PBKDF2",
+                text: "PBKDF2",
+                value: "PBKDF2"
+            }];
+            //self.result = self.options[1];
+        };
+        $scope.vm = new itemViewModel();
+
         var viewModel = function() {
             var self = this;
             self.intext = "";
             self.pwd = "";
+            self.iv = "";
             self.encTxt = null;
             self.decText = null;
         };
@@ -61,8 +171,49 @@ angular.module("demoApp", [])
         $scope.model = new viewModel();
 
         $scope.aes = function() {
-            var encrypted = CryptoJS.AES.encrypt($scope.model.intext, $scope.model.pwd);
-            var decrypted = CryptoJS.AES.decrypt(encrypted, $scope.model.pwd);
+            var key = $scope.model.pwd;
+            // var iv = $scope.model.iv;
+            // var encrypted = CryptoJS.AES.encrypt($scope.model.intext, key, {
+            //     iv: null
+            // });
+            var encrypted = null,
+                decrypted = null;
+            switch ($scope.selItem.type) {
+                case "Hashers":
+                    encrypted = CryptoJS[$scope.selItem.value]($scope.model.intext);
+                    decrypted = $scope.model.intext;
+                    break;
+                case "HMAC":
+                    
+                    break;
+                case "PBKDF2":
+                    
+                    break;
+                case "Ciphers":
+                    encrypted = CryptoJS[$scope.selItem.value].encrypt($scope.model.intext, key);
+                    decrypted = CryptoJS[$scope.selItem.value].decrypt(encrypted, key);
+                    break;
+            }
+            
+            // var decrypted = CryptoJS.AES.decrypt(encrypted, key);
+            $scope.model.encTxt = encrypted;
+            $scope.model.decText = decrypted.toString(CryptoJS.enc.Utf8);
+        };
+
+        $scope.encrypt = function() {
+
+            var key = $scope.model.pwd;
+            var encrypted = CryptoJS.AES.encrypt($scope.model.intext, key);
+            var decrypted = CryptoJS.AES.decrypt(encrypted, key);
+            $scope.model.encTxt = encrypted;
+            $scope.model.decText = decrypted.toString(CryptoJS.enc.Utf8);
+        };
+
+        $scope.decrypt = function() {
+
+            var key = $scope.model.pwd;
+            var encrypted = CryptoJS.AES.encrypt($scope.model.intext, key);
+            var decrypted = CryptoJS.AES.decrypt(encrypted, key);
             $scope.model.encTxt = encrypted;
             $scope.model.decText = decrypted.toString(CryptoJS.enc.Utf8);
         };
@@ -70,10 +221,11 @@ angular.module("demoApp", [])
         $scope.clear = function() {
             $scope.model.intext = "";
             $scope.model.pwd = "";
+            $scope.model.iv = "";
             $scope.model.encTxt = "";
             $scope.model.decText = "";
         };
-    }]);
+    }])
 </script>
 
 </html>
